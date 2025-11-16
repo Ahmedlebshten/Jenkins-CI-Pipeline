@@ -1,11 +1,15 @@
 pipeline {
   agent any
   environment {
-    DOCKERHUB_REPO = "ahmedlebshten/helloapp"      
+    DOCKERHUB_REPO = "ahmedlebshten/helloapp"
     IMAGE_TAG = "${env.BUILD_NUMBER}"
   }
   stages {
-    stage('Checkout') { steps { checkout scm } }
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
 
     stage('Build Docker Image') {
       steps {
@@ -16,7 +20,7 @@ pipeline {
 
     stage('Docker Login') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-cred',
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials',
                                           usernameVariable: 'DH_USER',
                                           passwordVariable: 'DH_PASS')]) {
           sh 'echo $DH_PASS | docker login -u $DH_USER --password-stdin'
