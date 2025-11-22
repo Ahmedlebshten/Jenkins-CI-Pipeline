@@ -5,7 +5,7 @@ pipeline {
     DOCKERHUB_REPO = "ahmedlebshten/helloapp"
     IMAGE_TAG = "${env.BUILD_NUMBER}"
     CD_REPO = "https://github.com/Ahmedlebshten/ArgoCD-Pipeline.git"
-    CD_REPO_PATH = "app-cd/manifests"
+    CD_REPO_PATH = "."
     DEPLOY_FILE = "deployment.yaml"
   }
 
