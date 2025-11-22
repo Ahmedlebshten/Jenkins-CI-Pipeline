@@ -19,7 +19,7 @@ A simple **CI pipeline** using **Jenkins**, **Docker**, and **GitHub** to automa
 1. Configure Jenkins job with your GitHub repo and branch.  
 2. Add Docker Hub credentials in Jenkins.  
 3. Run the pipeline or trigger via GitHub push.  
-4. Check the console output for success.
+4. Check the console output for Success.
 
 ```bash
 docker run -p 8080:80 ahmedlebshten/helloapp:latest
