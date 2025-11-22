@@ -90,6 +90,6 @@ pipeline {
 
   post {
     success { echo "Done: ${DOCKERHUB_REPO}:${IMAGE_TAG}" }
-    failure { echo "Failed" }
-  }
+    failure { echo "Failed" }
+  }
 }
