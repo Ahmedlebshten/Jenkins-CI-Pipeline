@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    DOCKERHUB_REPO = "ahmedlebshten/helloapp"
+    DOCKERHUB_REPO = "ahmedlebshten/url-shortener"
     IMAGE_TAG = "${env.BUILD_NUMBER}"
     CD_REPO = "https://github.com/Ahmedlebshten/ArgoCD-Pipeline.git"
     CD_REPO_PATH = "."
