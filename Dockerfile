@@ -1,9 +1,26 @@
-FROM nginx:1.25-alpine
+# Dockerfile for URL Shortener
+FROM node:18-alpine
 
-RUN rm -rf /usr/share/nginx/html/*
+# Set working directory
+WORKDIR /app
 
-COPY index.html /usr/share/nginx/html/index.html
+# Copy package files
+COPY package*.json ./
 
-EXPOSE 80
+# Install dependencies
+RUN npm ci --only=production
 
-CMD ["nginx", "-g", "daemon off;"]
+# Copy application files
+COPY . .
+
+# Create directory for SQLite database
+RUN mkdir -p /app/data
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variable for database path
+ENV DB_PATH=/app/data/urls.db
+
+# Start the application
+CMD ["node", "server.js"]

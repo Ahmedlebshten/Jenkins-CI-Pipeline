@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  url-shortener:
+    build: .
+    container_name: url-shortener
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/data/urls.db
+    restart: unless-stopped
+    networks:
+      - url-shortener-network
+
+networks:
+  url-shortener-network:
+    driver: bridge

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener - Fast & Simple</title>
+    <meta name="description" content="Shorten your long URLs quickly and easily with our simple URL shortener service.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>URL Shortener</h1>
+            <p class="subtitle">Transform your long URLs into short, shareable links</p>
+        </div>
+
+        <div class="card">
+            <form id="shortenForm">
+                <div class="input-group">
+                    <input 
+                        type="url" 
+                        id="urlInput" 
+                        placeholder="Enter your long URL here..." 
+                        required
+                        autocomplete="off"
+                    >
+                    <button type="submit" id="shortenBtn">
+                        <span class="btn-text">Shorten URL</span>
+                        <span class="btn-loader"></span>
+                    </button>
+                </div>
+            </form>
+
+            <div id="result" class="result hidden">
+                <div class="result-content">
+                    <div class="result-header">
+                        <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h2>URL Shortened Successfully!</h2>
+                    </div>
+                    
+                    <div class="url-display">
+                        <label>Short URL:</label>
+                        <div class="url-box">
+                            <input type="text" id="shortUrlDisplay" readonly>
+                            <button id="copyBtn" class="copy-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span class="copy-text">Copy</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="original-url">
+                        <label>Original URL:</label>
+                        <p id="originalUrlDisplay"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <h3>Lightning Fast</h3>
+                <p>Get your shortened URL in milliseconds</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📊</div>
+                <h3>Analytics Ready</h3>
+                <p>Track clicks and monitor performance</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure & Reliable</h3>
+                <p>Your URLs are safely stored</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

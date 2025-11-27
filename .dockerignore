@@ -1,0 +1,24 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Database files (will be in volume)
+*.db
+*.db-journal
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+.env
+check-db.js
