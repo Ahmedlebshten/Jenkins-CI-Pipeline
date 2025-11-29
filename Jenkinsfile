@@ -20,7 +20,6 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         sh "docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} ."
-        sh "docker tag ${DOCKERHUB_REPO}:${IMAGE_TAG} ${DOCKERHUB_REPO}:latest"
       }
     }
 
@@ -41,7 +40,6 @@ pipeline {
     stage('Push Docker Image') {
       steps {
         sh "docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}"
-        sh "docker push ${DOCKERHUB_REPO}:latest"
       }
     }
 
