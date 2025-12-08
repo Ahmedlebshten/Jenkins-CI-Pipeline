@@ -45,7 +45,7 @@ app.post("/api/shorten", (req, res) => {
       return res.status(500).json({ error: "Failed to create short URL" });
     }
 
-    const shortUrl = `${BASE_URL}/${shortCode}`;
+    const shortUrl = `${BASE_URL.replace(/\/+$/, "")}/${shortCode}`;
     res.json({
       shortUrl,
       shortCode,
