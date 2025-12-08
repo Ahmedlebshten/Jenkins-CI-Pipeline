@@ -29,7 +29,7 @@ EXPOSE 3000
 ENV DB_PATH=/app/data/urls.db
 
 # BASE_URL should be set at deployment time (e.g., http://your-ec2-ip:3000)
-ENV BASE_URL=http://13.217.229.180:3000
+ENV BASE_URL=http://13.217.229.180:2020
 
 # Start the application
 CMD ["node", "server.js"]

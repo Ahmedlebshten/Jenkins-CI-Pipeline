@@ -5,7 +5,7 @@ const db = require("./database");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = 2020;
 
 // Generate short codes using nanoid (alphanumeric, 7 characters)
 const nanoid = customAlphabet(
