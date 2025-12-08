@@ -43,7 +43,12 @@ app.post("/api/shorten", (req, res) => {
       return res.status(500).json({ error: "Failed to create short URL" });
     }
 
-    const shortUrl = `http://localhost:${PORT}/${shortCode}`;
+    // Use BASE_URL env variable, or construct from request host
+    const protocol = req.protocol || "http";
+    const host = process.env.BASE_URL || req.get("host") || `localhost:${PORT}`;
+    const baseUrl = process.env.BASE_URL ? host : `${protocol}://${host}`;
+    const shortUrl = `${baseUrl}/${shortCode}`;
+
     res.json({
       shortUrl,
       shortCode,
