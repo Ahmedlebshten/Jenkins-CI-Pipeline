@@ -3,13 +3,22 @@ pipeline {
 
   environment {
     DOCKERHUB_REPO = "ahmedlebshten/url-shortener"
-    IMAGE_TAG = "${env.BUILD_NUMBER}"
-    CD_REPO = "https://github.com/Ahmedlebshten/ArgoCD-Pipeline.git"
-    CD_REPO_PATH = "."
-    DEPLOY_FILE = "ArgoCD-Application/deployment.yaml"
+    IMAGE_TAG      = "${env.BUILD_NUMBER}"
+    CD_REPO        = "https://github.com/Ahmedlebshten/ArgoCD-Pipeline.git"
+    CD_REPO_PATH   = "."
+    DEPLOY_FILE    = "ArgoCD-Application/deployment.yaml"
   }
 
   stages {
+
+    stage('Security Scanning') {
+      steps {
+        script {
+          def secBuild = build job: 'Security-Scanning', wait: true, propagate: true
+          echo "Security-Scanning build #${secBuild.number} finished with result: ${secBuild.result}"
+        }
+      }
+    }
 
     stage('Checkout') {
       steps {
