@@ -5,7 +5,10 @@ const db = require("./database");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// base URL يتاخد من env (في الكلاستر هتحطه = ELB)
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 // Generate short codes using nanoid (alphanumeric, 7 characters)
 const nanoid = customAlphabet(
@@ -34,7 +37,6 @@ app.post("/api/shorten", (req, res) => {
   }
 
   const shortCode = nanoid();
-
   const query = `INSERT INTO urls (short_code, original_url) VALUES (?, ?)`;
 
   db.run(query, [shortCode, url], function (err) {
@@ -43,7 +45,7 @@ app.post("/api/shorten", (req, res) => {
       return res.status(500).json({ error: "Failed to create short URL" });
     }
 
-    const shortUrl = `http://localhost:${PORT}/${shortCode}`;
+    const shortUrl = `${BASE_URL}/${shortCode}`;
     res.json({
       shortUrl,
       shortCode,
@@ -73,7 +75,6 @@ app.get("/:shortCode", (req, res) => {
       return res.status(404).send("URL not found");
     }
 
-    // Update access count and last accessed time
     const updateQuery = `
       UPDATE urls 
       SET access_count = access_count + 1, 
@@ -87,7 +88,6 @@ app.get("/:shortCode", (req, res) => {
       }
     });
 
-    // Log analytics
     const userAgent = req.headers["user-agent"] || "";
     const ipAddress = req.ip || req.connection.remoteAddress || "";
     const referrer = req.headers["referer"] || req.headers["referrer"] || "";
@@ -103,12 +103,11 @@ app.get("/:shortCode", (req, res) => {
       }
     });
 
-    // Redirect to original URL
     res.redirect(row.original_url);
   });
 });
 
-// API: Get URL stats (for Prometheus monitoring)
+// API: Get URL stats
 app.get("/api/stats/:shortCode", (req, res) => {
   const { shortCode } = req.params;
 
@@ -134,5 +133,5 @@ app.get("/api/stats/:shortCode", (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`URL Shortener running on http://localhost:${PORT}`);
+  console.log(`URL Shortener running on ${BASE_URL}`);
 });
