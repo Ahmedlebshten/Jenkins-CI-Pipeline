@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+
+    stages {
+
+        /* ============================
+         🟩 1) Trivy Image Scan
+        ============================= */
+        stage('Trivy Image Scan') {
+            steps {
+                sh '''
+                echo "🔍 Scanning Docker Image using Trivy..."  
+                docker run --rm aquasec/trivy:latest image ahmedlebshten/url-shortener:55
+                echo "✅ Trivy Image Scan Completed!"
+                '''
+            }
+        }
+
+        /* ============================
+         🟦 2) Gitleaks CI Repo Scan
+        ============================= */
+        stage('Gitleaks Scan') {
+            steps {
+                sh '''
+                  echo "🔍 Cloning and Scanning CI Repo with Gitleaks..."
+
+                  rm -rf infra ci 
+
+                  # CI
+                  git clone https://github.com/Ahmedlebshten/Jenkins-CI-Pipeline.git ci
+                  docker run --rm -v $PWD/ci:/repo zricethezav/gitleaks:latest detect --source=/repo || true
+
+                  echo "✅ Gitleaks Scan Finished!"
+                '''
+            }
+        }
+
+        /* ============================
+         🟧 3) SonarQube CI Repo Scan
+        ============================= */
+        stage('SonarQube Scan') {
+            environment {
+                SONAR_HOST_URL = "http://54.87.2.77:9100"
+                SONAR_TOKEN = credentials('sonar-token')
+            }
+            steps {
+                sh '''
+                  echo "🔍 Running SonarQube Scans..."
+
+                  rm -rf infra ci cd
+
+                  # CI
+                  git clone https://github.com/Ahmedlebshten/Jenkins-CI-Pipeline.git ci
+                  cd ci
+                  sonar-scanner \
+                    -Dsonar.projectKey=ci \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=$SONAR_HOST_URL \
+                    -Dsonar.login=$SONAR_TOKEN || true
+                  cd ..
+
+                  echo "✅ SonarQube Scan Finished!"
+                '''
+            }
+        }
+
+    }
+}
