@@ -1,6 +1,9 @@
 # Dockerfile for URL Shortener
 FROM node:18-alpine
 
+# Install build dependencies for native modules (sqlite3)
+RUN apk add --no-cache python3 make g++
+
 # Set working directory
 WORKDIR /app
 
@@ -8,7 +11,10 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --production
+
+# Remove build dependencies to reduce image size
+RUN apk del python3 make g++
 
 # Copy application files
 COPY . .
