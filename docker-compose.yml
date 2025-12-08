@@ -5,7 +5,7 @@ services:
     build: .
     container_name: url-shortener
     ports:
-      - "3000:3000"
+      - "2020:2020"
     volumes:
       - ./data:/app/data
     environment:
