@@ -23,7 +23,7 @@ COPY . .
 RUN mkdir -p /app/data
 
 # Expose port
-EXPOSE 3000
+EXPOSE 2020
 
 # Set environment variable for database path
 ENV DB_PATH=/app/data/urls.db
