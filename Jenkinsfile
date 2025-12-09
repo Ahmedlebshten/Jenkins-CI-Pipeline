@@ -14,11 +14,15 @@ pipeline {
     stage('Security Scanning') {
       steps {
         script {
-          def secBuild = build job: 'Security-Scanning', wait: true, propagate: true
+          def secBuild = build job: 'Security-Scanning', 
+              parameters: [string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")],
+              wait: true, 
+              propagate: true
           echo "Security-Scanning build #${secBuild.number} finished with result: ${secBuild.result}"
-        }
-      }
     }
+  }
+}
+
 
     stage('Checkout') {
       steps {
