@@ -28,9 +28,11 @@ pipeline {
             sh '''
               set -e
               rm -rf cd-repo
+
               git clone https://${GIT_USER}:${GIT_PASS}@github.com/Ahmedlebshten/ArgoCD-Pipeline.git cd-repo
             '''
 
+            // اقرأ التاج الحالي من deployment.yaml داخل cd-repo
             def line = sh(
               script: "cd cd-repo && grep 'image: ${DOCKERHUB_REPO}:' ${DEPLOY_FILE} | head -1",
               returnStdout: true
@@ -55,19 +57,6 @@ pipeline {
       }
     }
 
-    stage('Security Scanning') {
-      steps {
-        script {
-          def secBuild = build job: 'Security-Scanning',
-            parameters: [string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")],
-            wait: true,
-            propagate: true
-
-          echo "Security-Scanning build #${secBuild.number} finished with result: ${secBuild.result}"
-        }
-      }
-    }
-
     stage('Docker Login') {
       steps {
         withCredentials([
@@ -85,6 +74,19 @@ pipeline {
     stage('Push Docker Image') {
       steps {
         sh "docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}"
+      }
+    }
+
+    stage('Security Scanning') {
+      steps {
+        script {
+          def secBuild = build job: 'Security-Scanning',
+            parameters: [string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")],
+            wait: true,
+            propagate: true
+
+          echo "Security-Scanning build #${secBuild.number} finished with result: ${secBuild.result}"
+        }
       }
     }
 
