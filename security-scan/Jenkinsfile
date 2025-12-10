@@ -25,7 +25,8 @@ pipeline {
           rm -rf ci
           git clone https://github.com/Ahmedlebshten/Jenkins-CI-Pipeline.git ci
 
-          docker run --rm -v $PWD/ci:/repo zricethezav/gitleaks:latest detect --source=/repo || true
+          # لو مش محتاج history استخدم --no-git عشان تمنع error بتاع git
+          docker run --rm -v $PWD/ci:/repo zricethezav/gitleaks:latest detect --source=/repo --no-git || true
 
           echo "✅ Gitleaks Scan Finished!"
         '''
@@ -38,21 +39,26 @@ pipeline {
         SONAR_TOKEN    = credentials('sonar-token')
       }
       steps {
-        sh '''
-          echo "🔍 Running SonarQube Scan..."
+        withSonarQubeEnv('SonarQube') {            // اسم السيرفر من Manage Jenkins → SonarQube servers
+          script {
+            def scannerHome = tool 'sonar-scanner' // اسم الـ Scanner من Global Tool Configuration
+            sh """
+              echo "🔍 Running SonarQube Scan..."
 
-          rm -rf ci
-          git clone https://github.com/Ahmedlebshten/Jenkins-CI-Pipeline.git ci
-          cd ci
+              rm -rf ci
+              git clone https://github.com/Ahmedlebshten/Jenkins-CI-Pipeline.git ci
+              cd ci
 
-          sonar-scanner \
-            -Dsonar.projectKey=ci \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.login=$SONAR_TOKEN || true
+              ${scannerHome}/bin/sonar-scanner \
+                -Dsonar.projectKey=ci \
+                -Dsonar.sources=. \
+                -Dsonar.host.url=${SONAR_HOST_URL} \
+                -Dsonar.login=${SONAR_TOKEN} || true
 
-          echo "✅ SonarQube Scan Finished!"
-        '''
+              echo "✅ SonarQube Scan Finished!"
+            """
+          }
+        }
       }
     }
 
@@ -60,7 +66,12 @@ pipeline {
       steps {
         sh """
           echo "🔍 Scanning Docker Image using Trivy..."
-          docker run --rm aquasec/trivy:latest image ${DOCKERHUB_REPO}:${params.IMAGE_TAG}
+
+          # استخدم Docker daemon المحلي (الصورة لسه مبنية في CI job)
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest image ${DOCKERHUB_REPO}:${params.IMAGE_TAG}
+
           echo "✅ Trivy Image Scan Completed!"
         """
       }
