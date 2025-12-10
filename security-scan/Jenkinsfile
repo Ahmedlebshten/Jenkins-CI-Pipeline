@@ -44,7 +44,7 @@ pipeline {
 
     stage('SonarQube Scan') {
       environment {
-        SONAR_HOST_URL = "http://3.89.242.6:9100"
+        SONAR_HOST_URL = "http://54.82.3.147:9100"
         SONAR_TOKEN    = credentials('sonar-token')
       }
       steps {
