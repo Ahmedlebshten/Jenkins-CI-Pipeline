@@ -11,19 +11,6 @@ pipeline {
 
   stages {
 
-    stage('Security Scanning') {
-      steps {
-        script {
-          def secBuild = build job: 'Security-Scanning', 
-              parameters: [string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")],
-              wait: true, 
-              propagate: true
-          echo "Security-Scanning build #${secBuild.number} finished with result: ${secBuild.result}"
-    }
-  }
-}
-
-
     stage('Checkout') {
       steps {
         checkout scm
@@ -53,6 +40,19 @@ pipeline {
     stage('Push Docker Image') {
       steps {
         sh "docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}"
+      }
+    }
+
+    stage('Security Scanning') {
+      steps {
+        script {
+          def secBuild = build job: 'Security-Scanning',
+            parameters: [string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")],
+            wait: true,
+            propagate: true
+
+          echo "Security-Scanning build #${secBuild.number} finished with result: ${secBuild.result}"
+        }
       }
     }
 

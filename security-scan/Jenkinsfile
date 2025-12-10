@@ -1,12 +1,12 @@
 pipeline {
   agent any
 
+  parameters {
+    string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to scan')
+  }
+
   environment {
     DOCKERHUB_REPO = "ahmedlebshten/url-shortener"
-    IMAGE_TAG      = "${env.BUILD_NUMBER}"
-    CD_REPO        = "https://github.com/Ahmedlebshten/ArgoCD-Pipeline.git"
-    CD_REPO_PATH   = "."
-    DEPLOY_FILE    = "ArgoCD-Application/deployment.yaml"
   }
 
   stages {
@@ -17,89 +17,58 @@ pipeline {
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Trivy Image Scan') {
       steps {
-        sh "docker build -t ${DOCKERHUB_REPO}:${IMAGE_TAG} ."
+        sh """
+        echo "🔍 Scanning Docker Image using Trivy..."
+        docker run --rm aquasec/trivy:latest image ${DOCKERHUB_REPO}:${params.IMAGE_TAG}
+        echo "✅ Trivy Image Scan Completed!"
+        """
       }
     }
 
-    stage('Docker Login') {
+    stage('Gitleaks Scan') {
       steps {
-        withCredentials([
-          usernamePassword(
-            credentialsId: 'dockerhub-credentials',
-            usernameVariable: 'DH_USER',
-            passwordVariable: 'DH_PASS'
-          )
-        ]) {
-          sh 'echo $DH_PASS | docker login -u $DH_USER --password-stdin'
-        }
+        sh '''
+          echo "🔍 Cloning and Scanning CI Repo with Gitleaks..."
+
+          rm -rf ci
+          git clone https://github.com/Ahmedlebshten/Jenkins-CI-Pipeline.git ci
+
+          docker run --rm -v $PWD/ci:/repo zricethezav/gitleaks:latest detect --source=/repo || true
+
+          echo "✅ Gitleaks Scan Finished!"
+        '''
       }
     }
 
-    stage('Push Docker Image') {
-      steps {
-        sh "docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}"
+    stage('SonarQube Scan') {
+      environment {
+        SONAR_HOST_URL = "http://3.89.242.6:9100"
+        SONAR_TOKEN    = credentials('sonar-token')
       }
-    }
-
-    stage('Security Scanning') {
       steps {
-        script {
-          def secBuild = build job: 'Security-Scanning', 
-            parameters: [string(name: 'IMAGE_TAG', value: "${IMAGE_TAG}")],
-            wait: true, 
-            propagate: true
-          echo "Security-Scanning build #${secBuild.number} finished with result: ${secBuild.result}"
-        }
-      }
-    }
+        sh '''
+          echo "🔍 Running SonarQube Scan..."
 
-    stage('Update CD repo (bump image tag)') {
-      steps {
-        withCredentials([
-          usernamePassword(
-            credentialsId: 'git-cred',
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASS'
-          )
-        ]) {
-          sh '''
-            set -e
-            rm -rf cd-repo
+          rm -rf ci
+          git clone https://github.com/Ahmedlebshten/Jenkins-CI-Pipeline.git ci
+          cd ci
 
-            git clone https://${GIT_USER}:${GIT_PASS}@github.com/Ahmedlebshten/ArgoCD-Pipeline.git cd-repo
-            cd cd-repo || exit 2
+          sonar-scanner \
+            -Dsonar.projectKey=ci \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN || true
 
-            cd "${CD_REPO_PATH}" || (echo "Path ${CD_REPO_PATH} not found" && exit 3)
-
-            if [ ! -f "${DEPLOY_FILE}" ]; then
-              echo "ERROR: ${DEPLOY_FILE} not found under ${CD_REPO_PATH}"
-              exit 4
-            fi
-
-            sed -i "s|image: ${DOCKERHUB_REPO}:.*|image: ${DOCKERHUB_REPO}:${IMAGE_TAG}|g" "${DEPLOY_FILE}"
-
-            git --no-pager diff -- "${DEPLOY_FILE}" || true
-
-            git config user.email "jenkins@ci.local"
-            git config user.name "jenkins"
-
-            if git diff --quiet; then
-              echo "No changes in ${DEPLOY_FILE}"
-            else
-              git add "${DEPLOY_FILE}"
-              git commit -m "ci: bump image to ${IMAGE_TAG}"
-              git push origin HEAD
-            fi
-          '''
-        }
+          echo "✅ SonarQube Scan Finished!"
+        '''
       }
     }
   }
 
   post {
-    success { echo "Done: ${DOCKERHUB_REPO}:${IMAGE_TAG}" }
-    failure { echo "Failed" }
+    success { echo "Security scans passed for image tag: ${params.IMAGE_TAG}" }
+    failure { echo "Security scans failed!" }
   }
 }
