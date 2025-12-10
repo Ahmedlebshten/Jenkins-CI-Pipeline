@@ -17,16 +17,6 @@ pipeline {
       }
     }
 
-    stage('Trivy Image Scan') {
-      steps {
-        sh """
-        echo "🔍 Scanning Docker Image using Trivy..."
-        docker run --rm aquasec/trivy:latest image ${DOCKERHUB_REPO}:${params.IMAGE_TAG}
-        echo "✅ Trivy Image Scan Completed!"
-        """
-      }
-    }
-
     stage('Gitleaks Scan') {
       steps {
         sh '''
@@ -44,7 +34,7 @@ pipeline {
 
     stage('SonarQube Scan') {
       environment {
-        SONAR_HOST_URL = "http://54.82.3.147:9100"
+        SONAR_HOST_URL = "http://54.147.28.81:9100"
         SONAR_TOKEN    = credentials('sonar-token')
       }
       steps {
@@ -63,6 +53,16 @@ pipeline {
 
           echo "✅ SonarQube Scan Finished!"
         '''
+      }
+    }
+
+    stage('Trivy Image Scan') {
+      steps {
+        sh """
+          echo "🔍 Scanning Docker Image using Trivy..."
+          docker run --rm aquasec/trivy:latest image ${DOCKERHUB_REPO}:${params.IMAGE_TAG}
+          echo "✅ Trivy Image Scan Completed!"
+        """
       }
     }
   }

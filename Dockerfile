@@ -12,6 +12,8 @@ COPY package*.json ./
 
 # Install dependencies
 RUN npm install --production
+RUN npm install --omit=dev
+
 
 # Remove build dependencies to reduce image size
 RUN apk del python3 make g++
@@ -29,7 +31,7 @@ EXPOSE 2020
 ENV DB_PATH=/app/data/urls.db
 
 # BASE_URL should be set at deployment time (e.g., http://your-ec2-ip:3000)
-ENV BASE_URL=http://54.82.3.147:2020
+# ENV BASE_URL=http://54.147.28.81:2020
 
 # Start the application
 CMD ["node", "server.js"]
