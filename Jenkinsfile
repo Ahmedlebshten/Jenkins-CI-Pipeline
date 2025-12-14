@@ -32,7 +32,7 @@ pipeline {
               git clone https://${GIT_USER}:${GIT_PASS}@github.com/Ahmedlebshten/ArgoCD-Pipeline.git cd-repo
             '''
 
-            // اقرأ التاج الحالي من deployment.yaml داخل cd-repo
+            // Read the current tag of image in deployment.yaml in ArgoCD-repo
             def line = sh(
               script: "cd cd-repo && grep 'image: ${DOCKERHUB_REPO}:' ${DEPLOY_FILE} | head -1",
               returnStdout: true
