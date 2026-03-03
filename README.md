@@ -1,5 +1,4 @@
-# DEPI-Final-Project
-## 📊 Monitoring a Containerized URL Shortener Webservice
+# 📊 Monitoring a Containerized URL Shortener Webservice
 
 ## 🧩 Overview
 
