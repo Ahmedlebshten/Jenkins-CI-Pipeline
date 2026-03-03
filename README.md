@@ -54,7 +54,7 @@ The application uses a relational schema to manage shortened URLs and track anal
 ## 🛠️ CI Pipeline: Automated Deployment
 This component defines a Continuous Integration (CI) pipeline using Jenkins, Docker, and GitHub to automate the process of building and pushing the URL Shortener's Docker image.
 
-Pipeline Features:
+#### Pipeline Features:
 
 - Auto checkout from the specified GitHub repository and branch.
 - Builds the Docker image for the URL Shortener Webservice.
@@ -62,7 +62,7 @@ Pipeline Features:
 - Cleans up local Docker images to conserve space.
 - Uses Jenkins credentials securely for sensitive information (e.g., Docker Hub login).
 
-Quick Start for CI:
+#### Quick Start for CI:
 
 - Configure the Jenkins job (typically a Pipeline type) with your GitHub repository URL and target branch.
 - Add your Docker Hub credentials (Username and Token/Password) in Jenkins as a secret credential.
